@@ -24,79 +24,73 @@ public class TextExtractor {
     private static Pattern p_punctuation;
     private static Matcher m_punctuation;
     // 文本密度，论坛一半在10以上，新闻要小很多，在5以上
-    private static int textDensity = 5;
+    private int textDensity = 5;
     // 中文字符密度（中文字数/文本长度）
-    private static double textRate = 0.5;
+    private double textRate = 0.5;
     // 是否开启标点检查
-    private static boolean checkPunctuation = true;
+    private boolean checkPunctuation = true;
     // 是否开启中文检查
-    private static boolean checkChinese = true;
+    private boolean checkChinese = true;
+    private String html;
 
-    public static void main(String[] args) {
-        // String url = "http://www.madcn.net/?p=791"; //非新闻类文章测试
-        // 需要关闭标点检查，文本密度调整为5
-        // String url = "http://tieba.baidu.com/p/1158988989";
-        // String source = new HttpCrawler().crawl(url);
-        // String content = extract(source);
-        // logger.info("正文内容");
-        // logger.info("------------------------------");
-        // logger.info(content);
-        String text = "2011年07月05日 09:03   来源：   编辑：杨苏雯";
-        double d = getTextRate(text);
-        System.out.println(d);
+    public TextExtractor(String html) {
+        this.html = html;
     }
 
-    /**
-     * 抽取标题
-     *
-     * @param source      html源码
-     * @param textDensity 每行的中文文本密度
-     * @return 正文
-     */
-    public static String extract(String source, int textDensity) {
-        TextExtractor.textDensity = textDensity;
-        return extract(source);
+    public TextExtractor(int textDensity) {
+        this.textDensity = textDensity;
     }
 
-    /**
-     * 抽取标题
-     *
-     * @param source           html源码
-     * @param textDensity      每行的中文文本密度
-     * @param checkPunctuation 是否开启标点检查（默认开启）
-     * @return 正文
-     */
-    public static String extract(String source, int textDensity,
-                                 boolean checkPunctuation) {
-        TextExtractor.textDensity = textDensity;
-        TextExtractor.checkPunctuation = checkPunctuation;
-        return extract(source);
+    public TextExtractor(int textDensity, double textRate) {
+        this.textDensity = textDensity;
+        this.textRate = textRate;
     }
 
-    /**
-     * 抽取标题
-     *
-     * @param source           html源码
-     * @param textDensity      每行的中文文本密度
-     * @param checkPunctuation 是否开启标点检查（默认开启）
-     * @param checkChinese     是否开启中文检查（默认开启）
-     * @return 正文
-     */
-    public static String extract(String source, int textDensity,
-                                 boolean checkPunctuation, boolean checkChinese) {
-        TextExtractor.textDensity = textDensity;
-        TextExtractor.checkPunctuation = checkPunctuation;
-        TextExtractor.checkChinese = checkChinese;
-        return extract(source);
+    public TextExtractor(int textDensity, double textRate, boolean checkPunctuation) {
+        this.textDensity = textDensity;
+        this.textRate = textRate;
+        this.checkPunctuation = checkPunctuation;
     }
+
+    public TextExtractor(int textDensity, double textRate, boolean checkPunctuation, boolean checkChinese) {
+        this.textDensity = textDensity;
+        this.textRate = textRate;
+        this.checkPunctuation = checkPunctuation;
+        this.checkChinese = checkChinese;
+    }
+
+    public static TextExtractor from(String html) {
+        return new TextExtractor(html);
+    }
+
+    public TextExtractor textDensity(int textDensity) {
+        this.textDensity = textDensity;
+        return this;
+    }
+
+    public TextExtractor textRate(double textRate) {
+        this.textRate = textRate;
+        return this;
+    }
+
+    public TextExtractor checkPunctuation(boolean checkPunctuation) {
+        this.checkPunctuation = checkPunctuation;
+        return this;
+    }
+
+    public TextExtractor checkChinese(boolean checkChinese) {
+        this.checkChinese = checkChinese;
+        return this;
+    }
+
 
     /**
      * 抽取正文
      *
-     * @param source
      * @return 正文
      */
-    public static String extract(String source) {
+    public String extract() {
+        String source = html;
         if (!isContentPage(source, true)) {
             return "不为内容页面";
         }
@@ -146,7 +140,7 @@ public class TextExtractor {
      * @param tempContent
      * @return 前置标签
      */
-    private static Map<Element, String> processCenterTags(
+    private Map<Element, String> processCenterTags(
             Map<Element, String> texts, String maxTagName, int maxSize,
             StringBuilder tempContent, Element maxTag) {
         int exist = 0, last = 0, firstTag = 0, sameNum = 0;
@@ -251,8 +245,8 @@ public class TextExtractor {
      * @param maxTagLength
      * @param texts
      */
-    private static void processDefaultTags(Elements elements,
-                                           Map<Element, Integer> maxTagLength, Map<Element, String> texts) {
+    private void processDefaultTags(Elements elements,
+                                    Map<Element, Integer> maxTagLength, Map<Element, String> texts) {
         for (Element element : elements) {
             String nodeValue = element.ownText();
             // 不为空的节点才进行计算
@@ -298,7 +292,7 @@ public class TextExtractor {
      * @param str
      * @return
      */
-    private static int getChineseNum(String str) {
+    private int getChineseNum(String str) {
         int count = 0;
         if (checkChinese) {
             String regEx = "[\\u4e00-\\u9fa5]";
@@ -318,7 +312,7 @@ public class TextExtractor {
      * @param str
      * @return
      */
-    private static int getPunctuationNum(String str) {
+    private int getPunctuationNum(String str) {
         int count = 0;
         if (checkPunctuation) {
             String regEx = "[, ,，.．。“”?!！、]";
@@ -338,7 +332,7 @@ public class TextExtractor {
      * @param text
      * @return
      */
-    private static double getTextRate(String text) {
+    private double getTextRate(String text) {
         int chinese_num = getChineseNum(text);
         return (double) chinese_num / text.length();
     }

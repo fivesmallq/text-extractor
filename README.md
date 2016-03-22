@@ -1,2 +1,2 @@
-# text-extraction
-simple web page text extraction
+# text-extractor
+简单的网页正文提取

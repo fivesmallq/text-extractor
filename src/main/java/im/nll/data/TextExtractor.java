@@ -298,7 +298,7 @@ public class TextExtractor {
      * @param str
      * @return
      */
-    public static int getChineseNum(String str) {
+    private static int getChineseNum(String str) {
         int count = 0;
         if (checkChinese) {
             String regEx = "[\\u4e00-\\u9fa5]";
@@ -318,7 +318,7 @@ public class TextExtractor {
      * @param str
      * @return
      */
-    public static int getPunctuationNum(String str) {
+    private static int getPunctuationNum(String str) {
         int count = 0;
         if (checkPunctuation) {
             String regEx = "[, ,，.．。“”?!！、]";
@@ -338,7 +338,7 @@ public class TextExtractor {
      * @param text
      * @return
      */
-    public static double getTextRate(String text) {
+    private static double getTextRate(String text) {
         int chinese_num = getChineseNum(text);
         return (double) chinese_num / text.length();
     }
@@ -350,7 +350,7 @@ public class TextExtractor {
      * @param clearTag 是否清理html标签
      * @return
      */
-    public static boolean isContentPage(String htmlText, boolean clearTag) {
+    private static boolean isContentPage(String htmlText, boolean clearTag) {
         String text = clearTag ? clearHtmlTag(htmlText) : htmlText;
         int periodCount = 0;
         for (int i = 0; i < text.length() && periodCount < 3; i++) {
@@ -360,73 +360,10 @@ public class TextExtractor {
         return periodCount >= 3;
     }
 
-    public static String clearHtmlTag(String html) {
+    private static String clearHtmlTag(String html) {
         return Jsoup.parse(html).text();
     }
 
-    /**
-     * 清除无用的html内容
-     *
-     * @param htmlText
-     * @return
-     */
-    public static String preProcess(String htmlText) {
-        // DTD
-        htmlText = htmlText.replaceAll("(?is)<!DOCTYPE.*?>", "");
-        // html comment
-        htmlText = htmlText.replaceAll("(?is)<!--.*?-->", "");
-        // js
-        htmlText = htmlText.replaceAll("(?is)<script.*?>.*?</script>", "");
-        // css
-        htmlText = htmlText.replaceAll("(?is)<style.*?>.*?</style>", "");
-        // <p>
-        htmlText = htmlText.replaceAll("(?is)<p.*?>", "\n");
-        // <br>
-        htmlText = htmlText.replaceAll("(?is)<br.*?>", "\n");
-        // html
-        htmlText = htmlText.replaceAll("(?is)<.*?>", "");
-
-        return replaceSpecialChar(htmlText);
-    }
-
-    /**
-     * 替换特殊字符
-     *
-     * @param content
-     * @return
-     */
-    private static String replaceSpecialChar(String content) {
-        String text = content.replaceAll("&quot;", "\"");
-        text = text.replaceAll("&ldquo;", "“");
-        text = text.replaceAll("&rdquo;", "”");
-        text = text.replaceAll("&middot;", "·");
-        text = text.replaceAll("&#8231;", "·");
-        text = text.replaceAll("&#8212;", "——");
-        text = text.replaceAll("&#28635;", "濛");
-        text = text.replaceAll("&hellip;", "…");
-        text = text.replaceAll("&#23301;", "嬅");
-        text = text.replaceAll("&#27043;", "榣");
-        text = text.replaceAll("&#8226;", "·");
-        text = text.replaceAll("&#40;", "(");
-        text = text.replaceAll("&#41;", ")");
-        text = text.replaceAll("&#183;", "·");
-        text = text.replaceAll("&nbsp;", " ");
-        text = text.replaceAll("&amp;", "&");
-        text = text.replaceAll("&bull;", "·");
-        text = text.replaceAll("&lt;", "<");
-        text = text.replaceAll("&#60;", "<");
-        text = text.replaceAll("&gt;", ">");
-        text = text.replaceAll("&#62;", ">");
-        text = text.replaceAll("&#160;", " ");
-        text = text.replaceAll("&tilde;", "~");
-        text = text.replaceAll("&mdash;", "—");
-        text = text.replaceAll("&copy;", "@");
-        text = text.replaceAll("&#169;", "@");
-        text = text.replaceAll("♂", "");
-        text = text.replaceAll("\r\n|\r", "\n");
-
-        return text;
-    }
 
     /**
      * 获取html源代码中的body部分.
@@ -436,7 +373,7 @@ public class TextExtractor {
      * @param html
      * @return
      */
-    public static String body(String html) {
+    private static String body(String html) {
         int start_index = html.toLowerCase().indexOf("<body");
         int end_index = html.toLowerCase().lastIndexOf("</body>");
         if (start_index < 0) {
@@ -448,12 +385,12 @@ public class TextExtractor {
         return html.substring(start_index, end_index);
     }
 
-    public static boolean isNullOrEmpty(String content) {
+    private static boolean isNullOrEmpty(String content) {
         return content == null || content.length() == 0
                 || "null".equals(content);
     }
 
-    public static boolean isNotNullOrEmpty(String content) {
+    private static boolean isNotNullOrEmpty(String content) {
         return (content != null) && (content.length() > 0);
     }
 
